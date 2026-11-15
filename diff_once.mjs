@@ -1,0 +1,12 @@
+import { readFileSync } from "node:fs"; import crypto from "node:crypto"; import { signRequest } from "./wba.mjs";
+const UA = "surfer-agent/0.1 (AI agent; +https://surfer-frozen-check.fly.dev/agent)", u = process.argv[2];
+const k = crypto.createPrivateKey(readFileSync(process.env.WBA_KEY)); const now = Math.floor(Date.now() / 1000);
+const { headers } = signRequest({ privateKey: k, authority: new URL(u).host, agentUrl: "https://surfer-frozen-check.fly.dev/.well-known/http-message-signatures-directory", created: now, expires: now + 300, nonce: crypto.randomBytes(32).toString("base64") });
+const strip = t => t.replace(/nonce="[^"]+"/g, 'nonce=""');
+const ra = await fetch(u, { headers: { "User-Agent": UA, Accept: "text/html,*/*" } }), rb = await fetch(u, { headers: { "User-Agent": UA, Accept: "text/html,*/*", ...headers } });
+const a = strip(await ra.text()), b = strip(await rb.text());
+console.log("서명 없음", a.length, "서명", b.length);
+let i = 0; while (i < a.length && a[i] === b[i]) i++; let j = 0; while (j < a.length - i && a[a.length - 1 - j] === b[b.length - 1 - j]) j++;
+console.log("서명 없는 쪽에만 있는 조각(앞 500자):", JSON.stringify(a.slice(i, a.length - j).slice(0, 500)));
+console.log("서명한 쪽에만 있는 조각:", JSON.stringify(b.slice(i, b.length - j).slice(0, 300)));
+for (const h of ["cf-cache-status", "vary", "set-cookie", "x-robots-tag"]) console.log(h, "|", ra.headers.get(h)?.slice(0, 80), "|", rb.headers.get(h)?.slice(0, 80));
