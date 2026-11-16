@@ -1,4 +1,4 @@
-// 남의 눈으로 내 서명을 본다: 머리말만 받아 명부 주소를 풀고 서명을 확인한다(규격 5.4의 최소판).
+// Check my signature as a stranger would: take only the headers, resolve the directory URL, verify the signature (minimal version of spec 5.4).
 import crypto from "node:crypto"; import { thumbprint } from "./wba.mjs";
 export async function verify({ authority, headers }) {
   const label = headers["Signature-Input"].split("=")[0];
@@ -17,9 +17,9 @@ export async function verify({ authority, headers }) {
 if (process.argv[1].endsWith("verify.mjs")) {
   const { signedHeaders } = await import("./signed_get.mjs");
   const { headers } = signedHeaders("https://example.com/");
-  console.log("제대로 된 서명:", await verify({ authority: "example.com", headers }));
-  console.log("다른 사이트에 재사용:", await verify({ authority: "evil.example", headers }));
-  const i = headers.Signature.indexOf(":") + 10, c = headers.Signature[i];   // 가운데 글자 하나를 바꾼다(끝의 = 채움 글자는 바꿔도 같은 바이트로 풀린다)
+  console.log("valid signature:", await verify({ authority: "example.com", headers }));
+  console.log("replayed on another site:", await verify({ authority: "evil.example", headers }));
+  const i = headers.Signature.indexOf(":") + 10, c = headers.Signature[i];   // flip one middle char (changing the trailing = padding would decode to the same bytes)
   const bad = { ...headers, Signature: headers.Signature.slice(0, i) + (c === "A" ? "B" : "A") + headers.Signature.slice(i + 1) };
-  console.log("서명 한 글자 바꿈:", await verify({ authority: "example.com", headers: bad }));
+  console.log("one char changed:", await verify({ authority: "example.com", headers: bad }));
 }

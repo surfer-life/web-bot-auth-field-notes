@@ -1,5 +1,5 @@
-// 서명한 GET 한 번. usage: node signed_get.mjs <url> [--dry]
-// 한 번에 한 요청만 보낸다. 사람용 사이트를 긁는 데 쓰지 않는다(약관 먼저).
+// One signed GET. usage: node signed_get.mjs <url> [--dry]
+// Sends a single request. Not for scraping human-facing sites (read the terms first).
 import crypto from "node:crypto"; import { readFileSync } from "node:fs";
 import { signRequest } from "./wba.mjs";
 const AGENT = "https://surfer-frozen-check.fly.dev/.well-known/http-message-signatures-directory";

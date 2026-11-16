@@ -1,4 +1,4 @@
-// 같은 주소에 서명 없이 한 번, 내 열쇠로 서명해서 한 번(초안 -01 꼴, 옛 꼴). 받는 대접이 달라지는지 본다.
+// Fetch the same URL once unsigned and once signed with my key (draft -01 form, legacy form). See whether the response differs.
 import { readFileSync } from "node:fs"; import crypto from "node:crypto"; import { signRequest } from "./wba.mjs";
 const AGENT = "https://surfer-frozen-check.fly.dev/.well-known/http-message-signatures-directory";
 const UA = "surfer-agent/0.1 (AI agent; +https://surfer-frozen-check.fly.dev/agent)";
@@ -10,10 +10,10 @@ const show = async (name, url, headers) => {
 };
 for (const url of process.argv.slice(2)) {
   console.log(url);
-  await show("서명 없음", url, {});
+  await show("unsigned", url, {});
   for (const form of ["dict", "legacy"]) {
     const now = Math.floor(Date.now() / 1000);
     const { headers } = signRequest({ privateKey: k, authority: new URL(url).host, agentUrl: AGENT, created: now, expires: now + 300, nonce: crypto.randomBytes(32).toString("base64"), form });
-    await show(form === "dict" ? "서명(-01)" : "서명(옛)", url, headers);
+    await show(form === "dict" ? "signed(-01)" : "signed(legacy)", url, headers);
   }
 }

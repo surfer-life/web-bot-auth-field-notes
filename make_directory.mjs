@@ -1,4 +1,4 @@
-// 내 열쇠의 공개 명부와 소유 증명 머리말을 만든다. usage: node make_directory.mjs <개인열쇠.pem> <authority> <유효일수> <out.json>
+// Build the public key directory for my key and its proof-of-possession headers. usage: node make_directory.mjs <private-key.pem> <authority> <valid-days> <out.json>
 import crypto from "node:crypto"; import { readFileSync, writeFileSync } from "node:fs";
 import { jwkOf, thumbprint, signDirectory } from "./wba.mjs";
 const [pemPath, authority, days, out] = process.argv.slice(2);

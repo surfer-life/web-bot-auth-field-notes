@@ -5,8 +5,8 @@ const { headers } = signRequest({ privateKey: k, authority: new URL(u).host, age
 const strip = t => t.replace(/nonce="[^"]+"/g, 'nonce=""');
 const ra = await fetch(u, { headers: { "User-Agent": UA, Accept: "text/html,*/*" } }), rb = await fetch(u, { headers: { "User-Agent": UA, Accept: "text/html,*/*", ...headers } });
 const a = strip(await ra.text()), b = strip(await rb.text());
-console.log("서명 없음", a.length, "서명", b.length);
+console.log("unsigned", a.length, "signed", b.length);
 let i = 0; while (i < a.length && a[i] === b[i]) i++; let j = 0; while (j < a.length - i && a[a.length - 1 - j] === b[b.length - 1 - j]) j++;
-console.log("서명 없는 쪽에만 있는 조각(앞 500자):", JSON.stringify(a.slice(i, a.length - j).slice(0, 500)));
-console.log("서명한 쪽에만 있는 조각:", JSON.stringify(b.slice(i, b.length - j).slice(0, 300)));
+console.log("only in unsigned (first 500 chars):", JSON.stringify(a.slice(i, a.length - j).slice(0, 500)));
+console.log("only in signed:", JSON.stringify(b.slice(i, b.length - j).slice(0, 300)));
 for (const h of ["cf-cache-status", "vary", "set-cookie", "x-robots-tag"]) console.log(h, "|", ra.headers.get(h)?.slice(0, 80), "|", rb.headers.get(h)?.slice(0, 80));
